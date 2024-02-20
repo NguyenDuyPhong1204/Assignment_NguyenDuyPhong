@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export function Favorite({navigation}:any) {
-    const [listFavorite ,setListFovorite] = useState([]);
+export function Favorite({ navigation }: any) {
+    const [listFavorite, setListFovorite] = useState([]);
 
     useEffect(() => {
         fetch('http://192.168.2.140:3000/favorite')
@@ -17,9 +17,33 @@ export function Favorite({navigation}:any) {
         setIsMounted(true);
     }, []);
 
+    const fetchDataFromAPI = async () => {
+        try {
+            const response = await fetch('http://192.168.2.140:3000/favorite');
+            if (!response.ok) {
+                throw new Error('Failed to fetch data from API');
+            }
+            const data = await response.json();
+            // Cập nhật dữ liệu trong ứng dụng với dữ liệu mới từ API
+            updateData(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    // Hàm để cập nhật dữ liệu trong ứng dụng
+    const updateData = (newData: any) => {
+        // Thực hiện các thao tác cập nhật dữ liệu trong ứng dụng với newData
+        setListFovorite(newData);
+    };
+
+    const deleteProduct = (pid: any) => {
+        fetch(`http://192.168.2.140:3000/favorite/${pid}`, { method: 'DELETE' })
+    };
+    fetchDataFromAPI();
     return (
-        <View style={{flex:1}}>
-              <View style={styles.viewCoffeeItem}>
+        <View style={{ flex: 1, backgroundColor: 'black', justifyContent: 'space-around' }}>
+            <View style={styles.viewCoffeeItem}>
                 <FlatList
                     numColumns={2}
                     contentContainerStyle={{ justifyContent: 'space-around' }}
@@ -31,8 +55,8 @@ export function Favorite({navigation}:any) {
                             <View style={{ flex: 1, justifyContent: 'space-around' }}>
                                 <TouchableOpacity style={styles.coffeeItem} onPress={() => {
                                     if (isMounted) {
-                                        navigation.navigate('ProductDetails', { item }); // Chuyển dữ liệu 'item'
-                                        console.log(item);
+                                        // navigation.navigate('ProductDetails', { item }); // Chuyển dữ liệu 'item'
+                                        // console.log(item);
                                     }
                                 }}>
                                     <View style={{ flex: 6 }}>
@@ -44,12 +68,16 @@ export function Favorite({navigation}:any) {
                                     </View>
 
                                     <View style={{ flex: 4 }}>
-                                        <Text style={styles.textNameCoffee}>{item.nameCoffee}</Text>
+                                        <Text style={styles.textNameCoffee}>{item.title}</Text>
                                         <Text style={styles.textDesc}>{item.description}</Text>
 
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, }}>
                                             <Image source={require('/Ki5/React Native/Assignment/Assignment_NguyenDuyPhong_PH36760/image/dollar.png')} style={styles.imageMoney} />
                                             <Text style={styles.textMoney}>{item.price}</Text>
+
+                                            <TouchableOpacity style={styles.buttonDelete} onPress={() => deleteProduct(item.id)}>
+                                                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 17 }}>x</Text>
+                                            </TouchableOpacity>
 
                                             <TouchableOpacity style={styles.buttonAdd}>
                                                 <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 17 }}>+</Text>
@@ -187,7 +215,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: screen.width / 1.05,
         marginTop: 30,
-
+        justifyContent: 'space-around'
     },
 
     coffeeItem: {
@@ -230,6 +258,17 @@ const styles = StyleSheet.create({
         width: 35,
         height: 35,
         backgroundColor: '#FF6600',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        right: 40
+    },
+
+    buttonDelete: {
+        width: 35,
+        height: 35,
+        backgroundColor: 'red',
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',

@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { Dimensions, Image, ImageBackground, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 export function ProductDetails({ route, navigation }: any) {
-    const productId = route.params.item.id;
-    const image = route.params.item.image;
-    const nameCoffee = route.params.item.title;
-    const des = route.params.item.description;
-    const evaluate = route.params.item.evaluate;
-    const details = route.params.item.detail;
-    const price = route.params.item.price;
+    const { coffee } = route.params;
 
 
 
@@ -20,41 +14,46 @@ export function ProductDetails({ route, navigation }: any) {
     const apiFavorite = "http://192.168.2.140:3000/favorite";
 
     const addToFavorite = async () => {
-        const response = await fetch(apiFavorite, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: productId,
-                nameCoffee: nameCoffee,
-                image: image,
-                description: des,
-                evaluate: evaluate,
-                price: price,
-                details: details,
-                favorite: true // Chỉ đặt favorite là true khi thêm vào yêu thích
-            })
-        });
+      try {
+          // Kiểm tra trạng thái của sản phẩm trong danh sách yêu thích
+          const productId = coffee.id;
+          const checkResponse = await fetch(`http://192.168.2.140:3000/favorite/?id=${productId}`);
+          const checkData = await checkResponse.json();
+  
+          // Nếu sản phẩm đã tồn tại trong danh sách yêu thích, hiển thị thông báo và không thêm mới
+          if (checkResponse.ok && checkData.productId) {
+              ToastAndroid.show("Đã có sản phẩm trong yêu thích", ToastAndroid.SHORT);
+              return;
+          } else {
+              // Nếu sản phẩm chưa tồn tại trong danh sách yêu thích, thêm mới
+              const response = await fetch(apiFavorite, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                      id: coffee.id,
+                      title: coffee.title,
+                      description: coffee.description,
+                      image: coffee.image,
+                      evaluate: coffee.evaluate,
+                      price: coffee.price,
+                      details: coffee.detail,
+                      favorite: true
+                  })
+              });
+  
+              // Xử lý kết quả từ yêu cầu thêm mới
+              if (response.ok) {
+                  ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT);
+              } else {
+                  ToastAndroid.show("Lỗi thêm", ToastAndroid.SHORT);
+              }
+          }
+  
+      } catch (error:any) {
+        ToastAndroid.show("Lỗi" + error.message, ToastAndroid.SHORT);
+      }
 
-        if (response.ok) {
-            const responseData = await response.json();
-            if (responseData.success) {
-                // Kiểm tra trạng thái isFavorite từ phản hồi
-                const isFavorite = responseData.isFavorite;
-                if (isFavorite) {
-                    ToastAndroid.show("Sản phẩm đã tồn tại trong yêu thích", ToastAndroid.SHORT);
-                } else {
-                    ToastAndroid.show("Đã thêm vào yêu thích", ToastAndroid.SHORT);
-                    setFavorite(true);
-                }
-            } else {
-                ToastAndroid.show("Lỗi thêm", ToastAndroid.SHORT);
-            }
-        } else {
-            ToastAndroid.show("Lỗi thêm", ToastAndroid.SHORT);
-        }
     };
+
 
 
 
@@ -64,7 +63,7 @@ export function ProductDetails({ route, navigation }: any) {
 
             {/* Image background*/}
 
-            <ImageBackground style={styles.ImageBackgroundStyle} source={{ uri: image }}>
+            <ImageBackground style={styles.ImageBackgroundStyle} source={{ uri: coffee.image }}>
 
                 <StatusBar translucent backgroundColor={'rgba(0,0,0,0)'}></StatusBar>
                 <View style={styles.viewHeader}>
@@ -75,17 +74,17 @@ export function ProductDetails({ route, navigation }: any) {
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.buttonFavorite} onPress={addToFavorite}>
-                        <Image source={require('../image/favorite.png')} style={{ width: 15, height: 15, tintColor: favorite ? 'red' : 'white' }}></Image>
+                        <Image source={require('../image/favorite.png')} style={{ width: 15, height: 15, tintColor: 'red' }}></Image>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.styleTitle}>
-                    <Text style={styles.textTitle}>{nameCoffee}</Text>
-                    <Text style={styles.textDes}>{des}</Text>
+                    <Text style={styles.textTitle}>{coffee.title}</Text>
+                    <Text style={styles.textDes}>{coffee.description}</Text>
 
                     <View style={styles.viewRate}>
                         <Text style={{ color: 'white', fontSize: 30 }}>⭐</Text>
-                        <Text style={styles.textEvaluate}>{evaluate}</Text>
+                        <Text style={styles.textEvaluate}>{coffee.evaluate}</Text>
                     </View>
                 </View>
             </ImageBackground>
@@ -94,7 +93,7 @@ export function ProductDetails({ route, navigation }: any) {
 
             <View style={styles.styleDetails}>
                 <Text style={{ color: 'white', fontSize: 20 }}>Description</Text>
-                <Text style={{ color: 'white', fontSize: 17, marginTop: 20 }}>{details}</Text>
+                <Text style={{ color: 'white', fontSize: 17, marginTop: 20 }}>{coffee.detail}</Text>
 
                 <View style={styles.viewSize}>
                     <Text style={{ color: 'white', fontSize: 20 }}>Size</Text>
@@ -124,7 +123,7 @@ export function ProductDetails({ route, navigation }: any) {
 
                         <View style={{ flexDirection: 'row' }}>
                             <Image source={require('../image/dollar.png')} style={styles.imageIcon}></Image>
-                            <Text style={styles.textSize}>{price}</Text>
+                            <Text style={styles.textSize}>{coffee.price}</Text>
                         </View>
 
 

@@ -37,6 +37,28 @@ export function MainActivity({ navigation }: any) {
         setIsMounted(true);
     }, []);
 
+
+    const fetchDataFromAPI = async () => {
+        try {
+            const response = await fetch('http://192.168.2.140:3000/favorite');
+            if (!response.ok) {
+                throw new Error('Failed to fetch data from API');
+            }
+            const data = await response.json();
+            // Cập nhật dữ liệu trong ứng dụng với dữ liệu mới từ API
+            updateData(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    // Hàm để cập nhật dữ liệu trong ứng dụng
+    const updateData = (newData: any) => {
+        // Thực hiện các thao tác cập nhật dữ liệu trong ứng dụng với newData
+        setProductCoffee(newData);
+    };
+
+    // fetchDataFromAPI();
     return (
 
         <View style={styles.styleMainView}>
@@ -117,7 +139,7 @@ export function MainActivity({ navigation }: any) {
                             <View style={{ flex: 1, justifyContent: 'space-around' }}>
                                 <TouchableOpacity style={styles.coffeeItem} onPress={() => {
                                     if (isMounted) {
-                                        navigation.navigate('ProductDetails', { item }); // Chuyển dữ liệu 'item'
+                                        navigation.navigate('ProductDetails', { coffee:item }); // Chuyển dữ liệu 'item'
                                         console.log(item);
                                         
                                     }
