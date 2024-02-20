@@ -38,6 +38,7 @@ import { TabNavigator } from './routers/navigations/TabNavigator';
 import { Cart } from './screen/Cart';
 import { PaymentHistory } from './screen/PaymentHistory';
 import { Welcome } from './screen/Welcome';
+import { ProductDetails } from './screen/ProductDetails';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -56,12 +57,12 @@ function App(): React.JSX.Element {
   return (
 
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='Welcome' component={Welcome} options={{animation:'slide_from_right'}}></Stack.Screen>
-        <Stack.Screen name='Login' component={Login} options={{animation:'slide_from_bottom'}}></Stack.Screen>
-        <Stack.Screen name='Register' component={Register} options={{animation:'slide_from_bottom'}}></Stack.Screen>
+      <Stack.Navigator initialRouteName='Tab' screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='Welcome' component={Welcome} options={{ animation: 'slide_from_right' }}></Stack.Screen>
+        <Stack.Screen name='Login' component={Login} options={{ animation: 'slide_from_bottom' }}></Stack.Screen>
+        <Stack.Screen name='Register' component={Register} options={{ animation: 'slide_from_bottom' }}></Stack.Screen>
         <Stack.Screen name='Tab' component={TabNavigator} options={{ animation: 'slide_from_bottom' }}></Stack.Screen>
-
+        <Stack.Screen name='ProductDetails' component={ProductDetails} options={{ animation: 'slide_from_bottom' }}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
 

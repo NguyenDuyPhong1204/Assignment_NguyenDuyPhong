@@ -3,10 +3,10 @@ import { Dimensions, FlatList, Image, ImageBackground, ScrollView, StatusBar, St
 import { Cart } from "./Cart";
 import { Favorite } from "./Favorite";
 import { useEffect, useState } from "react";
-import {typeCoffee } from "../data/ListCoffeeItem";
+import { typeCoffee } from "../data/ListCoffeeItem";
+import { useNavigation } from "@react-navigation/native";
 
-
-export function MainActivity() {
+export function MainActivity({ navigation }: any) {
 
 
     const [selectedCoffee, setSelectedCoffee] = useState(1);
@@ -16,23 +16,27 @@ export function MainActivity() {
     const [findCoffee, setFindCoffee] = useState('');
 
 
-    useEffect(()=>{
+    useEffect(() => {
         fetch('http://192.168.2.140:3000/typeCoffee')
-        .then(response => response.json())
-        .then(json =>{
-            setTypeCoffee(json);
-        })
-    },[]);
+            .then(response => response.json())
+            .then(json => {
+                setTypeCoffee(json);
+            })
+    }, []);
 
-    useEffect(()=>{
+    useEffect(() => {
         fetch(`http://192.168.2.140:3000/productCoffee`)
-        .then(response => response.json())
-        .then(json =>{
-            setProductCoffee(json)
-        })
-    },[])
-    
-    
+            .then(response => response.json())
+            .then(json => {
+                setProductCoffee(json)
+            })
+    }, [])
+
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     return (
 
         <View style={styles.styleMainView}>
@@ -59,7 +63,7 @@ export function MainActivity() {
                 <TouchableOpacity style={styles.buttonFind}>
                     <Image style={styles.iconFind} source={require('/Ki5/React Native/Assignment/Assignment_NguyenDuyPhong_PH36760/image/find.png')} />
                 </TouchableOpacity>
-                <TextInput style={styles.textInputFind} placeholder="Name coffee" placeholderTextColor={'white'} onChangeText={setFindCoffee} value={findCoffee}/>
+                <TextInput style={styles.textInputFind} placeholder="Name coffee" placeholderTextColor={'white'} onChangeText={setFindCoffee} value={findCoffee} />
             </View>
 
             {/* Type Coffee */}
@@ -103,17 +107,23 @@ export function MainActivity() {
                 <FlatList
                     numColumns={2}
                     contentContainerStyle={{ justifyContent: 'space-around' }}
-                    data={productCoffee.filter((item: any) =>{
-                        return item.category === selectedCoffee && item.description.toLowerCase().includes(findCoffee.toLowerCase())
+                    data={productCoffee.filter((item: any) => {
+                        return item.category == selectedCoffee && item.description.toLowerCase().includes(findCoffee.toLowerCase())
                     })}
                     keyExtractor={item => item.id}
-                    renderItem={({ item}: any) => {
+                    renderItem={({ item }: any) => {
                         return (
 
                             <View style={{ flex: 1, justifyContent: 'space-around' }}>
-                                <TouchableOpacity style={styles.coffeeItem}>
+                                <TouchableOpacity style={styles.coffeeItem} onPress={() => {
+                                    if (isMounted) {
+                                        navigation.navigate('ProductDetails', { item }); // Chuyển dữ liệu 'item'
+                                        console.log(item);
+                                        
+                                    }
+                                }}>
                                     <View style={{ flex: 6 }}>
-                                        <ImageBackground source={{uri: item.image}} imageStyle={styles.imageCoffee}>
+                                        <ImageBackground source={{ uri: item.image }} imageStyle={styles.imageCoffee}>
                                             <View style={styles.viewStart}>
                                                 <Text style={{ color: 'white' }}>⭐ {item.evaluate}</Text>
                                             </View>

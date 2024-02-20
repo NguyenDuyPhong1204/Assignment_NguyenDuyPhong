@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Dimensions, Image, ImageBackground, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-export function Login({ navigation }) {
+export function Login({ navigation }: any) {
 
     const [emailAddress, setEmailAddress] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [userData, setUserData] = useState(null);
+    const [errorEmail, setErrorEmail]= useState('');
 
 
     const validateEmail = (email: any) => {
@@ -19,42 +20,62 @@ export function Login({ navigation }) {
     const apiLoginEndpoint = "/user"; // Đường dẫn API đăng nhập
 
     const handleLogin = async () => {
-        try {
-            const response = await fetch(apiBaseUrl + apiLoginEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: emailAddress,
-                    password: password
-                }),
-            });
-            const data = await response.json();
-            if (response.ok) {
-                // Đăng nhập thành công, xử lý tiếp theo tại đây
-                console.log("Login successful:", data);
-                navigation.navigate('Tab'); // Ví dụ: Chuyển hướng đến màn hình chính
+        const email = validateEmail(emailAddress);
+        const pass = password.length > 0;
+
+        if (!email || !pass) {
+            if (!email) {
+                setErrorEmail('Vui lòng nhập lại email');
             } else {
-                // Đăng nhập không thành công, hiển thị thông báo lỗi
-                setError(data.message || "Login failed");
+                setErrorEmail("");
             }
-        } catch (error) {
-            console.error("Error logging in:", error);
-            setError("An error occurred while logging in");
+
+            if (!password) {
+                setError("Vui lòng nhập mật khẩu");
+            } else {
+                setError("");
+            }
+        } else {
+            try {
+                const response = await fetch(apiBaseUrl + apiLoginEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: emailAddress,
+                        password: password
+                    }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    // Đăng nhập thành công, xử lý tiếp theo tại đây
+                    console.log("Login successful:", data);
+                    navigation.navigate('Tab'); // Ví dụ: Chuyển hướng đến màn hình chính
+
+                } else {
+                    // Đăng nhập không thành công, hiển thị thông báo lỗi
+                    setError(data.message || "Login failed");
+                }
+            } catch (error) {
+                console.error("Error logging in:", error);
+                setError("An error occurred while logging in");
+            }
         }
+
+
     };
 
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-      setIsMounted(true);
+        setIsMounted(true);
     }, []);
-    
+
     const onPress = () => {
-      if (isMounted) {
-        navigation.navigate('Register');
-      }
+        if (isMounted) {
+            navigation.navigate('Register');
+        }
     };
 
     return (
@@ -72,7 +93,7 @@ export function Login({ navigation }) {
                     placeholderTextColor={'white'}
                     onChangeText={setEmailAddress}
                     value={emailAddress} />
-
+            <Text style={styles.textError}>{errorEmail}</Text>
                 <TextInput style={styles.textInputStyle}
                     placeholder="Password"
                     placeholderTextColor={'white'}
@@ -93,12 +114,12 @@ export function Login({ navigation }) {
             </View>
 
             <View style={styles.viewElse}>
-                <View style={{flexDirection:"row"}}>
-                <Text style={styles.textElse}>Don't have account? Click
-                <Text style={{ color: 'orange' }} onPress={navigation.navigate('Register')}> Register</Text></Text>
+                <View style={{ flexDirection: "row" }}>
+                    <Text style={styles.textElse}>Don't have account? Click
+                        <Text style={{ color: 'orange' }} onPress={onPress}> Register</Text></Text>
                 </View>
                 <Text style={styles.textElse}>Forgot password? Click
-                    <Text style={{ color: 'orange' }} onPress={onPress}> Reset</Text></Text>
+                    <Text style={{ color: 'orange' }}> Reset</Text></Text>
             </View>
         </View>
     );

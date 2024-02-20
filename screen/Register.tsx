@@ -4,6 +4,7 @@ import { Dimensions, Image, StatusBar, StyleSheet, Text, TextInput, TouchableOpa
 export function Register({navigation}:any) {
     const [emailAddress, setEmailAddress] = useState("");
     const [password, setPassword] = useState("");
+    const [fullName, setFullName] = useState("");
     const [error, setError] = useState("");
     const [userData, setUserData] = useState(null);
 
@@ -25,6 +26,7 @@ export function Register({navigation}:any) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    fullname: fullName,
                     email: emailAddress,
                     password: password
                 }),
@@ -109,7 +111,8 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderWidth: 1,
         marginTop: 20,
-        padding: 10
+        padding: 10,
+        color:'white'
     },
     textGoogle: {
         fontSize: 20,
